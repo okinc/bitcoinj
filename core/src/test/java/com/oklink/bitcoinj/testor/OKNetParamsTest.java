@@ -1,7 +1,6 @@
 package com.oklink.bitcoinj.testor;
 
 
-import com.haoyouqian.bitcoinj.core.HYQKey;
 import com.oklink.bitcoinj.core.OKBlock;
 import com.oklink.bitcoinj.params.OKMainNetParams;
 import com.oklink.bitcoinj.params.OKTestNetParams;
