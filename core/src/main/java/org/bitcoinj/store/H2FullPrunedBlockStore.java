@@ -101,7 +101,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
      */
     public H2FullPrunedBlockStore(NetworkParameters params, String dbName, int fullStoreDepth)
             throws BlockStoreException {
-        this(params, DATABASE_CONNECTION_URL_PREFIX + dbName + ";create=true;LOCK_TIMEOUT=60000;DB_CLOSE_ON_EXIT=FALSE", null, null, fullStoreDepth);
+        this(params, dbName, null, null, fullStoreDepth);
     }
 
     /**
@@ -133,7 +133,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
 
     @Override
     protected List<String> getCreateTablesSQL() {
-        List<String> sqlStatements = new ArrayList<String>();
+        List<String> sqlStatements = new ArrayList<>();
         sqlStatements.add(CREATE_SETTINGS_TABLE);
         sqlStatements.add(CREATE_HEADERS_TABLE);
         sqlStatements.add(CREATE_UNDOABLE_TABLE);
@@ -143,7 +143,7 @@ public class H2FullPrunedBlockStore extends DatabaseFullPrunedBlockStore {
 
     @Override
     protected List<String> getCreateIndexesSQL() {
-        List<String> sqlStatements = new ArrayList<String>();
+        List<String> sqlStatements = new ArrayList<>();
         sqlStatements.add(CREATE_UNDOABLE_TABLE_INDEX);
         sqlStatements.add(CREATE_OUTPUTS_ADDRESS_MULTI_INDEX);
         sqlStatements.add(CREATE_OUTPUTS_ADDRESSTARGETABLE_INDEX);

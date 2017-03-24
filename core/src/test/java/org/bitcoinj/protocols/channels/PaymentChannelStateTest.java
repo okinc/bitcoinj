@@ -105,7 +105,7 @@ public class PaymentChannelStateTest extends TestWithWallet {
         serverKey = serverWallet.freshReceiveKey();
         chain.addWallet(serverWallet);
 
-        broadcasts = new LinkedBlockingQueue<TxFuturePair>();
+        broadcasts = new LinkedBlockingQueue<>();
         mockBroadcaster = new TransactionBroadcaster() {
             @Override
             public TransactionBroadcast broadcastTransaction(Transaction tx) {
@@ -729,14 +729,18 @@ public class PaymentChannelStateTest extends TestWithWallet {
         assertEquals(PaymentChannelClientState.State.NEW, clientState.getState());
         // We'll have to pay REFERENCE_DEFAULT_MIN_TX_FEE twice (multisig+refund), and we'll end up getting back nearly nothing...
         clientState.initiate();
-        assertEquals(Transaction.REFERENCE_DEFAULT_MIN_TX_FEE.multiply(2), clientState.getRefundTxFees());
+        // Hardcoded tx length because actual length may vary depending on actual signature length
+        // The value is close to clientState.getContractInternal().unsafeBitcoinSerialize().length;
+        int contractSize = versionSelector == PaymentChannelClient.VersionSelector.VERSION_1 ? 273 : 225;
+        Coin expectedFees = Transaction.REFERENCE_DEFAULT_MIN_TX_FEE.multiply(contractSize).divide(1000).add(Transaction.REFERENCE_DEFAULT_MIN_TX_FEE);
+        assertEquals(expectedFees, clientState.getRefundTxFees());
         assertEquals(getInitialClientState(), clientState.getState());
 
         // Now actually use a more useful CENT
         clientState = makeClientState(wallet, myKey, ECKey.fromPublicOnly(serverKey.getPubKey()), CENT, EXPIRE_TIME);
         assertEquals(PaymentChannelClientState.State.NEW, clientState.getState());
         clientState.initiate();
-        assertEquals(Transaction.REFERENCE_DEFAULT_MIN_TX_FEE.multiply(2), clientState.getRefundTxFees());
+        assertEquals(expectedFees, clientState.getRefundTxFees());
         assertEquals(getInitialClientState(), clientState.getState());
 
         if (useRefunds()) {
@@ -817,25 +821,21 @@ public class PaymentChannelStateTest extends TestWithWallet {
 
         switch (versionSelector) {
             case VERSION_1:
-                clientState = new PaymentChannelV1ClientState(wallet, myKey, ECKey.fromPublicOnly(serverKey.getPubKey()), CENT, EXPIRE_TIME) {
-                    @Override
-                    protected void editContractSendRequest(SendRequest req) {
-                        req.coinSelector = wallet.getCoinSelector();
-                    }
-                };
+                clientState = new PaymentChannelV1ClientState(wallet, myKey, ECKey.fromPublicOnly(serverKey.getPubKey()), CENT, EXPIRE_TIME) ;
                 break;
             case VERSION_2_ALLOW_1:
             case VERSION_2:
-                clientState = new PaymentChannelV2ClientState(wallet, myKey, ECKey.fromPublicOnly(serverKey.getPubKey()), CENT, EXPIRE_TIME) {
-                    @Override
-                    protected void editContractSendRequest(SendRequest req) {
-                        req.coinSelector = wallet.getCoinSelector();
-                    }
-                };
+                clientState = new PaymentChannelV2ClientState(wallet, myKey, ECKey.fromPublicOnly(serverKey.getPubKey()), CENT, EXPIRE_TIME);
                 break;
         }
         assertEquals(PaymentChannelClientState.State.NEW, clientState.getState());
-        clientState.initiate();
+        clientState.initiate(null, new PaymentChannelClient.DefaultClientChannelProperties() {
+            @Override
+            public SendRequest modifyContractSendRequest(SendRequest sendRequest) {
+                sendRequest.coinSelector = wallet.getCoinSelector();
+                return sendRequest;
+            }
+        });
         assertEquals(getInitialClientState(), clientState.getState());
 
         if (useRefunds()) {
@@ -874,10 +874,12 @@ public class PaymentChannelStateTest extends TestWithWallet {
         pair.future.set(pair.tx);
         assertEquals(PaymentChannelServerState.State.READY, serverState.getState());
 
+        int expectedSize = versionSelector == PaymentChannelClient.VersionSelector.VERSION_1 ? 271 : 355;
+        Coin expectedFee = Transaction.REFERENCE_DEFAULT_MIN_TX_FEE.multiply(expectedSize).divide(1000);
         // Both client and server are now in the ready state, split the channel in half
-        byte[] signature = clientState.incrementPaymentBy(Transaction.REFERENCE_DEFAULT_MIN_TX_FEE.subtract(Coin.SATOSHI), null)
+        byte[] signature = clientState.incrementPaymentBy(expectedFee.subtract(Coin.SATOSHI), null)
                 .signature.encodeToBitcoin();
-        Coin totalRefund = CENT.subtract(Transaction.REFERENCE_DEFAULT_MIN_TX_FEE.subtract(SATOSHI));
+        Coin totalRefund = CENT.subtract(expectedFee.subtract(SATOSHI));
         serverState.incrementPayment(totalRefund, signature);
 
         // We need to pay MIN_TX_FEE, but we only have MIN_NONDUST_OUTPUT
@@ -885,6 +887,7 @@ public class PaymentChannelStateTest extends TestWithWallet {
             serverState.close();
             fail();
         } catch (InsufficientMoneyException e) {
+            assertTrue(e.getMessage().contains("Insufficient money,  missing "));
         }
 
         // Now give the server enough coins to pay the fee
@@ -898,8 +901,8 @@ public class PaymentChannelStateTest extends TestWithWallet {
             assertTrue(e.getMessage().contains("more in fees"));
         }
 
-        signature = clientState.incrementPaymentBy(SATOSHI, null).signature.encodeToBitcoin();
-        totalRefund = totalRefund.subtract(SATOSHI);
+        signature = clientState.incrementPaymentBy(SATOSHI.multiply(20), null).signature.encodeToBitcoin();
+        totalRefund = totalRefund.subtract(SATOSHI.multiply(20));
         serverState.incrementPayment(totalRefund, signature);
 
         // And settle the channel.

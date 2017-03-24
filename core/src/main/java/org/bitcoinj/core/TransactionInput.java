@@ -165,14 +165,14 @@ public class TransactionInput extends ChildMessage {
         Script script = scriptSig == null ? null : scriptSig.get();
         if (script == null) {
             script = new Script(scriptBytes);
-            scriptSig = new WeakReference<Script>(script);
+            scriptSig = new WeakReference<>(script);
         }
         return script;
     }
 
     /** Set the given program as the scriptSig that is supposed to satisfy the connected output script. */
     public void setScriptSig(Script scriptSig) {
-        this.scriptSig = new WeakReference<Script>(checkNotNull(scriptSig));
+        this.scriptSig = new WeakReference<>(checkNotNull(scriptSig));
         // TODO: This should all be cleaned up so we have a consistent internal representation.
         setScriptBytes(scriptSig.getProgram());
     }
@@ -359,11 +359,23 @@ public class TransactionInput extends ChildMessage {
      * @return true if the disconnection took place, false if it was not connected.
      */
     public boolean disconnect() {
-        if (outpoint.fromTx == null) return false;
-        TransactionOutput output = outpoint.fromTx.getOutput((int) outpoint.getIndex());
-        if (output.getSpentBy() == this) {
-            output.markAsUnspent();
+        TransactionOutput connectedOutput;
+        if (outpoint.fromTx != null) {
+            // The outpoint is connected using a "standard" wallet, disconnect it.
+            connectedOutput = outpoint.fromTx.getOutput((int) outpoint.getIndex());
             outpoint.fromTx = null;
+        } else if (outpoint.connectedOutput != null) {
+            // The outpoint is connected using a UTXO based wallet, disconnect it.
+            connectedOutput = outpoint.connectedOutput;
+            outpoint.connectedOutput = null;
+        } else {
+            // The outpoint is not connected, do nothing.
+            return false;
+        }
+
+        if (connectedOutput != null && connectedOutput.getSpentBy() == this) {
+            // The outpoint was connected to an output, disconnect the output.
+            connectedOutput.markAsUnspent();
             return true;
         } else {
             return false;

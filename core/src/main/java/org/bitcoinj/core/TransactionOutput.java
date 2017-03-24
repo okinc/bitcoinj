@@ -331,7 +331,7 @@ public class TransactionOutput extends ChildMessage {
             }
         } catch (ScriptException e) {
             // Just means we didn't understand the output of this transaction: ignore it.
-            log.debug("Could not parse tx output script: {}", e.toString());
+            log.debug("Could not parse tx {} output script: {}", parent != null ? parent.getHash() : "(no parent)", e.toString());
             return false;
         }
     }
@@ -419,8 +419,8 @@ public class TransactionOutput extends ChildMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TransactionOutput other = (TransactionOutput) o;
-        return value == other.value && (parent == null || parent == other.parent)
-            && Arrays.equals(scriptBytes, other.scriptBytes);
+        return value == other.value && (parent == null || (parent == other.parent && getIndex() == other.getIndex()))
+                && Arrays.equals(scriptBytes, other.scriptBytes);
     }
 
     @Override
