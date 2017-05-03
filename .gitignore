@@ -6,3 +6,14 @@ target
 *.iml
 *.chain
 *.spvchain
+core/.fatjar
+core/bitcoinj.jar
+core/bitcoinj_fat.jar
+core/test-leveldb/000005.sst
+core/test-leveldb/000006.log
+core/test-leveldb/CURRENT
+core/test-leveldb/LOCK
+core/test-leveldb/LOG
+core/test-leveldb/LOG.old
+core/test-leveldb/MANIFEST-000004
+examples/src/main/java/org/bitcoinj/examples/ExampleECKeys.java
