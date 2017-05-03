@@ -25,8 +25,9 @@
         <version>0.15-SNAPSHOT</version>
     </parent>
 
+	<groupId>com.oklink</groupId>
+	<version>0.15-SNAPSHOT</version>
     <artifactId>oktoken-core</artifactId>
-
     <name>oktoken</name>
     <description>A Java OKToken library fork form Bitoinj (https://bitcoinj.github.io)</description>
 
@@ -45,8 +46,8 @@
     <!-- Dummy block to make Maven Central happy: authors list is in AUTHORS -->
     <developers>
         <developer>
-            <name>The bitcoinj team</name>
-            <email>bitcoinj@googlegroups.com</email>
+            <name>OKLink forks from The bitcoinj team</name>
+            <email>ops@oklink.com</email>
         </developer>
     </developers>
 
@@ -116,8 +117,8 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
 
@@ -209,7 +210,7 @@
                                         <urn>org.apache.maven.plugins:maven-surefire-plugin:2.19.1:maven-plugin:null:runtime:e2ee016ce9183ffa9e86c543690cadda7b3aea15</urn>
                                         <urn>org.easymock:easymock:3.2:jar:null:test:00c82f7fa3ef377d8954b1db25123944b5af2ba4</urn>
                                         <urn>org.eluder.coveralls:coveralls-maven-plugin:3.1.0:maven-plugin:null:runtime:ca9d2915e2b1e99f15c9f54ad653eda893d42a69</urn>
-                                        <urn>org.fusesource.leveldbjni:leveldbjni-all:1.8:jar:null:compile:707350a2eeb1fa2ed77a32ddb3893ed308e941db</urn>
+                                        <urn>org.fusesource.leveldbjni:leveldbjni-all:1.7:jar:null:compile:ea97366fc854111d14207d2446a237480f3c84fc</urn>
                                         <urn>org.hamcrest:hamcrest-core:1.3:jar:null:test:42a25dc3219429f0e5d060061f71acb49bf010a0</urn>
                                         <urn>org.jacoco:jacoco-maven-plugin:0.7.5.201505241946:maven-plugin:null:runtime:0a5e4dbbcd9b00e5ee42d928e10ab84f6f0b0835</urn>
                                         <urn>org.objenesis:objenesis:1.2:jar:null:test:bfcb0539a071a4c5a30690388903ac48c0667f2a</urn>
@@ -227,8 +228,8 @@
                         </configuration>
                     </execution>
                 </executions>
-
-                <!-- Ensure we download the enforcer rules -->
+				
+				<!-- Ensure we download the enforcer rules -->
                 <dependencies>
                     <dependency>
                         <groupId>uk.co.froot.maven.enforcer</groupId>
@@ -236,7 +237,7 @@
                         <version>0.0.1</version>
                     </dependency>
                 </dependencies>
-
+                
             </plugin>
 
             <plugin>
@@ -340,6 +341,7 @@
         </plugins>
     </build>
 
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -374,11 +376,11 @@
             <version>1.3.167</version>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.madgag.spongycastle</groupId>
-            <artifactId>core</artifactId>
-            <version>1.52.0.0</version>
-        </dependency>
+       <dependency>
+		    <groupId>com.madgag.spongycastle</groupId>
+		    <artifactId>core</artifactId>
+		    <version>1.52.0.0</version>
+		</dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
@@ -423,13 +425,18 @@
         <dependency>
             <groupId>org.fusesource.leveldbjni</groupId>
             <artifactId>leveldbjni-all</artifactId>
-            <version>1.8</version>
+            <version>1.7</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>3.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.co.froot.maven.enforcer</groupId>
+            <artifactId>digest-enforcer-rules</artifactId>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
     
@@ -440,8 +447,5 @@
 			<url>http://192.168.0.2:8081/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-	
-	
-	<groupId>com.oklink</groupId>
-	<version>0.15</version>
+
 </project>

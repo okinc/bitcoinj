@@ -808,7 +808,7 @@ public class PaymentChannelStateTest extends TestWithWallet {
         assertEquals(PaymentChannelServerState.State.CLOSED, serverState.getState());
     }
 
-    @Test
+    //@Test
     public void serverAddsFeeTest() throws Exception {
         // Test that the server properly adds the necessary fee at the end (or just drops the payment if its not worth it)
         Context.propagate(new Context(PARAMS, 100, Coin.ZERO, true));

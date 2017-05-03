@@ -1,11 +1,9 @@
 package com.oklink.bitcoinj.testor;
 
 import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.Context;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.TransactionInput;
-import org.bitcoinj.core.TransactionOutPoint;
 import org.bitcoinj.core.TransactionOutput;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.script.ScriptBuilder;
@@ -15,7 +13,6 @@ import org.junit.Test;
 import com.oklink.bitcoinj.core.*;
 import com.oklink.bitcoinj.params.*;
 import com.oklink.bitcoinj.script.*;
-import com.subgraph.orchid.encoders.Hex;
 
 public class OKBlockTest {
 	
